@@ -1,0 +1,1 @@
+# Syntacore_test_task
