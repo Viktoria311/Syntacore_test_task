@@ -61,7 +61,7 @@ class AVL_TREE
         void RL_rotate(Node<T> * root_node);
         void check_and_rotate(Node<T> * node, T item);
         Node<T> * create_tree(Node<T> * node);
-        Node<T> * helper_n_min(Node<T> * node, int i) const;
+        Node<T> * helper_smallest_order_statistic(Node<T> * node, int i) const;
         int helper_elem_less_than(Node<T> * node, T item) const;
         Node<T> * create_node(T item) const;
         void show(Node<T> * node) const;
@@ -75,7 +75,7 @@ class AVL_TREE
         void insert(T item);
         void remove(T item);
         void show() const;
-        T n_min(int i) const;
+        T smallest_order_statistic(int i) const;
         int elem_less_than(T item) const;
         friend std::ostream & operator<< <T> (std::ostream & os, const Node<T> * node);
         friend std::ostream & operator<< <T> (std::ostream & os, const AVL_TREE<T> & tree);
@@ -445,7 +445,7 @@ void AVL_TREE<T>::show() const
 }
 
 template<typename T>
-Node<T> * AVL_TREE<T>::helper_n_min(Node<T> * node, int i) const
+Node<T> * AVL_TREE<T>::helper_smallest_order_statistic(Node<T> * node, int i) const
 {
     static int count = 0;
     static Node<T> * result;
@@ -454,10 +454,10 @@ Node<T> * AVL_TREE<T>::helper_n_min(Node<T> * node, int i) const
     {
         if (node != nullptr)
         {
-            result = helper_n_min(node->left_branch_, i);
+            result = helper_smallest_order_statistic(node->left_branch_, i);
             ++count;
             if (count < i)
-                result = helper_n_min(node->right_branch_, i);
+                result = helper_smallest_order_statistic(node->right_branch_, i);
         }
     }
 
@@ -465,9 +465,9 @@ Node<T> * AVL_TREE<T>::helper_n_min(Node<T> * node, int i) const
 }
 
 template<typename T>
-T AVL_TREE<T>::n_min(int i) const
+T AVL_TREE<T>::smallest_order_statistic(int i) const
 {
-    return helper_n_min(root, i)->value_;
+    return helper_smallest_order_statistic(root, i)->value_;
 }
 
 template<typename T>
