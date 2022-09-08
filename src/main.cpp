@@ -1,6 +1,6 @@
+#include "AVL_Tree.h"
 #include <iostream>
 #include <vector>
-#include "AVL_Tree.h"
 
 int main()
 {
