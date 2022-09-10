@@ -3,58 +3,43 @@
 #include <fstream>
 #include <vector>
 
-int main(int argc, char* argv[])
+int main()
 {
-    std::ifstream fin;
-    fin.open(argv[1]);
-
-    if (!fin.is_open())
-    {
-        std::cout << "Can`t open this file\n";
-    }
-    else
-    {
         char alpha;
         int value;
-        std::vector<std::pair<char, int>> program_input;
-        AVL_TREE<int> tree;
+        AVL_tree<int> tree;
 
-        while(!fin.eof())
+        while(std::cin.get(alpha) && alpha != '\n')
         {
-            fin.get(alpha);
-            fin.get();
+            std::cin.get();
 
-            fin >> value;
-            fin.get();
+            if (!(std::cin >> value))
+            {
+                break;
+            }
+            std::cin.get();
 
             if (alpha == 'k')
             {
                 tree.insert(value);
             }
-            if (!fin.eof() && (alpha == 'm' || alpha == 'n'))
+            else if (alpha == 'm')
             {
-                program_input.push_back(std::make_pair(alpha, value));
+                std::cout << tree.k_th_order_statistic(value);
             }
-        }
-        fin.clear();
-
-        for(auto & i : program_input)
-        {
-            if (i.first == 'm')
+            else if (alpha == 'n')
             {
-                std::cout << tree.smallest_order_statistic(i.second);
+                std::cout << tree.elem_less_than(value);
             }
             else
             {
-                std::cout << tree.elem_less_than(i.second);
+                std::cout << "Error input" << std::endl;
             }
             std::cout << ' ';
         }
-        std::cout << std::endl;
+        std::cin.clear();
 
-
-        fin.close();
-    }
+        std::cout << "Bye" << std::endl;
 
     return 0;
 }

@@ -10,7 +10,7 @@ struct Node
     int balance_;
     Node<T> * right_branch_;
     Node<T> * left_branch_;
-    int elements_;
+    int elements_; // quantity of elements in this subtree
     Node<T> * operator=(const Node<T> * node);
     void delete_all(Node<T> * node);
 };
@@ -56,17 +56,17 @@ void Node<T>::delete_all(Node<T> * node)
 }
 
 template<typename T>
-class AVL_TREE;
+class AVL_tree;
 
 template<typename T>
 std::ostream & operator<<(std::ostream & os, const Node<T> * node);
 
 template<typename T>
-std::ostream & operator<<(std::ostream & os, const AVL_TREE<T> & tree);
+std::ostream & operator<<(std::ostream & os, const AVL_tree<T> & tree);
 
 
 template<typename T>
-class AVL_TREE
+class AVL_tree
 {
     private:
         Node<T> * root;
@@ -79,36 +79,36 @@ class AVL_TREE
         void check_and_rotate(Node<T> * node, T item);
         Node<T> * create_tree(Node<T> * node);
         Node<T> * create_node(T item) const;
-        T min(Node<T> * node) const; // FINDING MIN ELEMENT IN A BRANCH
-        T max(Node<T> * node) const; // FINDING MAX ELEMENT IN A BRANCH
+        T min(Node<T> * node) const; // finding min element in a branch
+        T max(Node<T> * node) const; // finding max element in a branch
         int elements_quantity(Node<T> * node) const;
         void show(Node<T> * node) const;
         void delete_all(Node<T> * node);
     public:
-        AVL_TREE();
-        AVL_TREE(const AVL_TREE<T> & tree);
-        ~AVL_TREE();
-        AVL_TREE<T> & operator=(const AVL_TREE<T> & tree);
+        AVL_tree();
+        AVL_tree(const AVL_tree<T> & tree);
+        ~AVL_tree();
+        AVL_tree<T> & operator=(const AVL_tree<T> & tree);
         bool is_there(T item) const;
         void insert(T item);
         void remove(T item);
         void show() const;
-        T smallest_order_statistic(int i) const;
+        T k_th_order_statistic(int i) const;
         int elem_less_than(T item) const;
-        T min() const; // FINDING MIN ELEMENT IN A TREE
-        T max() const; // FINDING MAX ELEMENT IN A TREE
+        T min() const; // finding min element in a tree
+        T max() const; // finding max element in a tree
         friend std::ostream & operator<< <T> (std::ostream & os, const Node<T> * node);
-        friend std::ostream & operator<< <T> (std::ostream & os, const AVL_TREE<T> & tree);
+        friend std::ostream & operator<< <T> (std::ostream & os, const AVL_tree<T> & tree);
 };
 
 template<typename T>
-AVL_TREE<T>::AVL_TREE()
+AVL_tree<T>::AVL_tree()
 {
     root = nullptr;
 }
 
 template<typename T>
-Node<T> * AVL_TREE<T>::create_tree(Node<T> * node)
+Node<T> * AVL_tree<T>::create_tree(Node<T> * node)
 {
     if (node == nullptr) return nullptr;
 
@@ -132,13 +132,13 @@ Node<T> * AVL_TREE<T>::create_tree(Node<T> * node)
 }
 
 template<typename T>
-AVL_TREE<T>::AVL_TREE(const AVL_TREE<T> & tree)
+AVL_tree<T>::AVL_tree(const AVL_tree<T> & tree)
 {
     root = create_tree(tree.root);
 }
 
 template<typename T>
-void AVL_TREE<T>::delete_all(Node<T> * node)
+void AVL_tree<T>::delete_all(Node<T> * node)
 {
     if (node != nullptr)
     {
@@ -152,13 +152,13 @@ void AVL_TREE<T>::delete_all(Node<T> * node)
 }
 
 template<typename T>
-AVL_TREE<T>::~AVL_TREE()
+AVL_tree<T>::~AVL_tree()
 {
     delete_all(root);
 }
 
 template<typename T>
-AVL_TREE<T> & AVL_TREE<T>::operator=(const AVL_TREE<T> & tree)
+AVL_tree<T> & AVL_tree<T>::operator=(const AVL_tree<T> & tree)
 {
     if (this == *tree)
         return *this;
@@ -168,7 +168,7 @@ AVL_TREE<T> & AVL_TREE<T>::operator=(const AVL_TREE<T> & tree)
 }
 
 template<typename T>
-bool AVL_TREE<T>::is_there(T item) const
+bool AVL_tree<T>::is_there(T item) const
 {
     Node<T> * current_node = root;
 
@@ -191,7 +191,7 @@ bool AVL_TREE<T>::is_there(T item) const
 }
 
 template<typename T>
-int AVL_TREE<T>::height(Node<T> * node) const
+int AVL_tree<T>::height(Node<T> * node) const
 {
     if (node == nullptr)
     {
@@ -212,16 +212,16 @@ int AVL_TREE<T>::height(Node<T> * node) const
 }
 
 template<typename T>
-void AVL_TREE<T>::set_balance(Node<T> * node)
+void AVL_tree<T>::set_balance(Node<T> * node)
 {
     if (node != nullptr)
     {
-        node->balance_ = height(node->right_branch_) - height(node->left_branch_); // ALWAYS RIGHT_BRANCH - LEFT_BRANCH
+        node->balance_ = height(node->right_branch_) - height(node->left_branch_); // always right_branch - left_branch
     }
 }
 
 template<typename T>
-void AVL_TREE<T>::L_rotate(Node<T> * root_node)
+void AVL_tree<T>::L_rotate(Node<T> * root_node)
 {
     Node<T> * right_branch = root_node->right_branch_;
     Node<T> * left_subtree_of_right_branch = right_branch->left_branch_;
@@ -235,7 +235,7 @@ void AVL_TREE<T>::L_rotate(Node<T> * root_node)
 }
 
 template<typename T>
-void AVL_TREE<T>::R_rotate(Node<T> * root_node)
+void AVL_tree<T>::R_rotate(Node<T> * root_node)
 {
     Node<T> * left_branch = root_node->left_branch_;
     Node<T> * right_subtree_of_left_branch = left_branch->right_branch_;
@@ -249,7 +249,7 @@ void AVL_TREE<T>::R_rotate(Node<T> * root_node)
 }
 
 template<typename T>
-void AVL_TREE<T>::LR_rotate(Node<T> * root_node)
+void AVL_tree<T>::LR_rotate(Node<T> * root_node)
 {
     Node<T> * left_branch = root_node->left_branch_;
     Node<T> * right_subtree_of_left_branch = left_branch->right_branch_;
@@ -266,7 +266,7 @@ void AVL_TREE<T>::LR_rotate(Node<T> * root_node)
 }
 
 template<typename T>
-void AVL_TREE<T>::RL_rotate(Node<T> * root_node)
+void AVL_tree<T>::RL_rotate(Node<T> * root_node)
 {
     Node<T> * right_branch = root_node->right_branch_;
     Node<T> * left_subtree_of_right_branch = right_branch->left_branch_;
@@ -283,7 +283,7 @@ void AVL_TREE<T>::RL_rotate(Node<T> * root_node)
 }
 
 template<typename T>
-void AVL_TREE<T>::check_and_rotate(Node<T> * node, T item)
+void AVL_tree<T>::check_and_rotate(Node<T> * node, T item)
 {
     if (height(node->right_branch_) - height(node->left_branch_) > 1 || height(node->right_branch_) - height(node->left_branch_) < -1)
     {
@@ -298,7 +298,7 @@ void AVL_TREE<T>::check_and_rotate(Node<T> * node, T item)
     }
 }
 template<typename T>
-Node<T> * AVL_TREE<T>::create_node(T item) const
+Node<T> * AVL_tree<T>::create_node(T item) const
 {
     auto new_node = new Node<T>;
     new_node->value_ = item;
@@ -311,7 +311,7 @@ Node<T> * AVL_TREE<T>::create_node(T item) const
 }
 
 template<typename T>
-void AVL_TREE<T>::insert(T item)
+void AVL_tree<T>::insert(T item)
 {
     if (root == nullptr)
     {
@@ -357,7 +357,7 @@ void AVL_TREE<T>::insert(T item)
 }
 
 template<typename T>
-void AVL_TREE<T>::remove(T item)
+void AVL_tree<T>::remove(T item)
 {
     if (is_there(item))
     {
@@ -380,7 +380,7 @@ void AVL_TREE<T>::remove(T item)
             }
         }
 
-        // IF IT IS A LEAF
+        // if it is a leaf
         if (current_node->left_branch_ == nullptr && current_node->right_branch_ == nullptr)
         {
             delete current_node;
@@ -394,7 +394,7 @@ void AVL_TREE<T>::remove(T item)
                 parent->left_branch_ = nullptr;
             }
         }
-        else if (current_node->left_branch_ == nullptr) // IF NODE HAS ONLY RIGHT BRANCH
+        else if (current_node->left_branch_ == nullptr) // if node has only right_branch
         {
             Node<T> * r_branch = current_node->right_branch_;
             delete current_node;
@@ -408,7 +408,7 @@ void AVL_TREE<T>::remove(T item)
                 parent->left_branch_ = r_branch;
             }
         }
-        else if (current_node->right_branch_ == nullptr) // IF NODE HAS ONLY LEFT BRANCH
+        else if (current_node->right_branch_ == nullptr) // if node has only left_branch
         {
             Node<T> * l_branch = current_node->left_branch_;
             delete current_node;
@@ -422,13 +422,13 @@ void AVL_TREE<T>::remove(T item)
                 parent->right_branch_ = l_branch;
             }
         }
-        else // THERE ARE 2 BRANCHES
+        else // there are 2 branches
         {
             Node<T> * r_branch = current_node->right_branch_;
             Node<T> * l_branch = current_node->left_branch_;
             delete current_node;
 
-            //FIND MIN ELEM IN THE RIGHT SUBTREE
+            // find min elem in the right subtree
             Node<T> * the_smalest_elem_in_right_branch = r_branch;
             Node<T> * parent_of_the_smalest_elem_in_right_branch = r_branch;
 
@@ -461,7 +461,7 @@ void AVL_TREE<T>::remove(T item)
 }
 
 template<typename T>
-void AVL_TREE<T>::show(Node<T> * node) const
+void AVL_tree<T>::show(Node<T> * node) const
 {
     if (node != nullptr)
     {
@@ -472,14 +472,14 @@ void AVL_TREE<T>::show(Node<T> * node) const
 }
 
 template<typename T>
-void AVL_TREE<T>::show() const
+void AVL_tree<T>::show() const
 {
     show(root);
     std::cout << '\n';
 }
 
 template<typename T>
-T AVL_TREE<T>::min(Node<T> * node) const
+T AVL_tree<T>::min(Node<T> * node) const
 {
     Node<T> * current_node = node;
 
@@ -490,7 +490,7 @@ T AVL_TREE<T>::min(Node<T> * node) const
 }
 
 template<typename T>
-T AVL_TREE<T>::max(Node<T> * node) const
+T AVL_tree<T>::max(Node<T> * node) const
 {
     Node<T> * current_node = node;
 
@@ -501,7 +501,7 @@ T AVL_TREE<T>::max(Node<T> * node) const
 }
 
 template<typename T>
-int AVL_TREE<T>::elements_quantity(Node<T> * node) const
+int AVL_tree<T>::elements_quantity(Node<T> * node) const
 {
     if (node == nullptr)
     {
@@ -514,7 +514,7 @@ int AVL_TREE<T>::elements_quantity(Node<T> * node) const
 }
 
 template<typename T>
-T AVL_TREE<T>::smallest_order_statistic(int i) const
+T AVL_tree<T>::k_th_order_statistic(int i) const
 {
     if (i <= 0 || i > elements_quantity(root))
     {
@@ -523,7 +523,6 @@ T AVL_TREE<T>::smallest_order_statistic(int i) const
     else
     {
         Node<T> * current_node = root;
-        Node<T> * parent = root;
 
         while(true)
         {
@@ -534,6 +533,10 @@ T AVL_TREE<T>::smallest_order_statistic(int i) const
             else if (i == 1)
             {
                 return min(current_node);
+            }
+            else if (elements_quantity(current_node->left_branch_) == i)
+            {
+                return max(current_node->left_branch_);
             }
             else if (elements_quantity(current_node->left_branch_) + 1 == i)
             {
@@ -553,7 +556,7 @@ T AVL_TREE<T>::smallest_order_statistic(int i) const
 }
 
 template<typename T>
-int AVL_TREE<T>::elem_less_than(T item) const
+int AVL_tree<T>::elem_less_than(T item) const
 {
     Node<T> * current_node = root;
     Node<T> * parent = root;
@@ -583,7 +586,7 @@ int AVL_TREE<T>::elem_less_than(T item) const
 }
 
 template<typename T>
-T AVL_TREE<T>::min() const
+T AVL_tree<T>::min() const
 {
     Node<T> * current_node = root;
 
@@ -594,7 +597,7 @@ T AVL_TREE<T>::min() const
 }
 
 template<typename T>
-T AVL_TREE<T>::max() const
+T AVL_tree<T>::max() const
 {
     Node<T> * current_node = root;
 
@@ -617,7 +620,7 @@ std::ostream & operator<<(std::ostream & os, const Node<T> * node)
 }
 
 template<typename T>
-std::ostream & operator<<(std::ostream & os, const AVL_TREE<T> & tree)
+std::ostream & operator<<(std::ostream & os, const AVL_tree<T> & tree)
 {
     os << tree.root;
 
