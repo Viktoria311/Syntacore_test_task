@@ -32,7 +32,9 @@ int main(int argc, char* argv[])
                 tree.insert(value);
             }
             if (!fin.eof() && (alpha == 'm' || alpha == 'n'))
+            {
                 program_input.push_back(std::make_pair(alpha, value));
+            }
         }
         fin.clear();
 
@@ -54,7 +56,5 @@ int main(int argc, char* argv[])
         fin.close();
     }
 
-
     return 0;
 }
-
