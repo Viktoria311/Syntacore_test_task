@@ -11,6 +11,14 @@ struct Node
     Node<T> * right_branch_;
     Node<T> * left_branch_;
     int elements_; // quantity of elements in this subtree
+    Node(T value)
+    {
+        value_ = value;
+        balance_ = 0;
+        right_branch_ = nullptr;
+        left_branch_ = nullptr;
+        int elements_ = 1;
+    }
     Node<T> * operator=(const Node<T> * node);
     void delete_all(Node<T> * node);
 };
@@ -79,7 +87,6 @@ class AVL_tree
         void check_and_rotate(Node<T> * node, T item);
         void check_and_rotate(Node<T> * node, Node<T> * parent);
         Node<T> * create_tree(Node<T> * node);
-        Node<T> * create_node(T item) const;
         T min(Node<T> * node) const; // finding min element in a branch
         T max(Node<T> * node) const; // finding max element in a branch
         int elements_quantity(Node<T> * node) const;
@@ -113,21 +120,13 @@ Node<T> * AVL_tree<T>::create_tree(Node<T> * node)
 {
     if (node == nullptr) return nullptr;
 
-    Node<T> * new_node = new Node<T>;
-    new_node->value_ = node->value_;
-    new_node->balance_ = node->balance_;
+    Node<T> * new_node = new Node<T>(node->value_);
 
-    if (node->left_branch_ == nullptr)
-        new_node->left_branch_ = nullptr;
-    else
-        new_node->left_branch_ = create_tree(node->left_branch_);
+    if (node->left_branch_ != nullptr)
+        new_node->left_branch_ = Node<T>(node->left_branch_->value_);
 
-    if (node->right_branch_ == nullptr)
-        new_node->right_branch_ = nullptr;
-    else
-        new_node->right_branch_ = create_tree(node->right_branch_);
-
-    new_node->elements_ = node->elements_;
+    if (node->right_branch_ != nullptr)
+        new_node->right_branch_ = Node<T>(node->right_branch_->value_);
 
     return new_node;
 }
@@ -351,24 +350,11 @@ void AVL_tree<T>::check_and_rotate(Node<T> * node, Node<T> * parent)
 }
 
 template<typename T>
-Node<T> * AVL_tree<T>::create_node(T item) const
-{
-    auto new_node = new Node<T>;
-    new_node->value_ = item;
-    new_node->balance_ = 0;
-    new_node->left_branch_ = nullptr;
-    new_node->right_branch_ = nullptr;
-    new_node->elements_ = 1;
-
-    return new_node;
-}
-
-template<typename T>
 void AVL_tree<T>::insert(T item)
 {
     if (root == nullptr)
     {
-        root = create_node(item);
+        root = new Node<T>(item);
     }
     else
     {
@@ -397,11 +383,11 @@ void AVL_tree<T>::insert(T item)
             // connect parent and new node
             if (parent->value_ < item)
             {
-                parent->right_branch_ = create_node(item);
+                parent->right_branch_ = new Node<T>(item);
             }
             else
             {
-                parent->left_branch_ = create_node(item);
+                parent->left_branch_ = new Node<T>(item);
             }
 
             check_and_rotate(grand_parent, item);
