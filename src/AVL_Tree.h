@@ -229,7 +229,7 @@ void AVL_tree<T>::L_rotate(Node<T> * root_node)
     Node<T> * left_subtree_of_right_branch = right_branch->left_branch_;
 
 
-    root_node->right_branch_ = left_subtree_of_right_branch;
+    last_root_node->right_branch_ = left_subtree_of_right_branch;
     right_branch->left_branch_ = last_root_node;
     root_node = right_branch;
 
@@ -250,7 +250,7 @@ void AVL_tree<T>::R_rotate(Node<T> * root_node)
     Node<T> * left_branch = root_node->left_branch_;
     Node<T> * right_subtree_of_left_branch = left_branch->right_branch_;
 
-    root_node->left_branch_ = right_subtree_of_left_branch;
+    last_root_node->left_branch_ = right_subtree_of_left_branch;
     left_branch->right_branch_ = last_root_node;
     root_node = left_branch;
 
