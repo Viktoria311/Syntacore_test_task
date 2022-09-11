@@ -6,7 +6,7 @@
 int main()
 {
         AVL_tree<int> tree3;
-        int arr3[] = {12, 19, 23, 50, 2, 9, 11, 43, 51, 7, 30, 5};
+        int arr3[] = {12, 19, 14, 23, 50};
 
         for(auto & i : arr3)
             tree3.insert(i);

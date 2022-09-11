@@ -77,6 +77,7 @@ class AVL_tree
         void LR_rotate(Node<T> * root_node);
         void RL_rotate(Node<T> * root_node);
         void check_and_rotate(Node<T> * node, T item);
+        void check_and_rotate(Node<T> * node, Node<T> * parent);
         Node<T> * create_tree(Node<T> * node);
         Node<T> * create_node(T item) const;
         T min(Node<T> * node) const; // finding min element in a branch
@@ -287,7 +288,7 @@ void AVL_tree<T>::LR_rotate(Node<T> * root_node)
     set_balance(root_node->left_branch_);
     set_balance(root_node->right_branch_);
     set_balance(root_node);
-    check_and_rotate(root_node->right_branch_);
+    check_and_rotate(root_node->right_branch_, root_node);
 }
 
 template<typename T>
@@ -314,7 +315,7 @@ void AVL_tree<T>::RL_rotate(Node<T> * root_node)
     set_balance(root_node->left_branch_);
     set_balance(root_node->right_branch_);
     set_balance(root_node);
-    check_and_rotate(root_node->left_branch_);
+    check_and_rotate(root_node->left_branch_, root_node);
 }
 
 template<typename T>
@@ -326,12 +327,29 @@ void AVL_tree<T>::check_and_rotate(Node<T> * node, T item)
                L_rotate(node);
            else if (node->value_ > item && node->left_branch_->value_ > item)
                R_rotate(node);
-           else if (node->value_ > item && node->right_branch_->value_ < item)
+           else if (node->value_ > item && node->left_branch_->value_ < item)
                LR_rotate(node);
-           else if (node->value_ < item && node->left_branch_->value_ > item)
+           else if (node->value_ < item && node->right_branch_->value_ > item)
                RL_rotate(node);
     }
 }
+
+template<typename T>
+void AVL_tree<T>::check_and_rotate(Node<T> * node, Node<T> * parent)
+{
+    if (height(node->right_branch_) - height(node->left_branch_) > 1 || height(node->right_branch_) - height(node->left_branch_) < -1)
+    {
+        if (node->value_ > parent->value_ && height(node->right_branch_) > height(node->left_branch_))
+            L_rotate(node);
+        else if (node->value_ < parent->value_ && height(node->right_branch_) < height(node->left_branch_))
+            R_rotate(node);
+        else if (node->value_ < parent->value_ && height(node->right_branch_) > height(node->left_branch_))
+            LR_rotate(node);
+        else if (node->value_ > parent->value_ && height(node->right_branch_) < height(node->left_branch_))
+            RL_rotate(node);
+    }
+}
+
 template<typename T>
 Node<T> * AVL_tree<T>::create_node(T item) const
 {
