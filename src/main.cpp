@@ -5,6 +5,15 @@
 
 int main()
 {
+        AVL_tree<int> tree3;
+        int arr3[] = {12, 19, 23, 50, 2, 9, 11, 43, 51, 7, 30, 5};
+
+        for(auto & i : arr3)
+            tree3.insert(i);
+
+        std::cout << tree3 << std::endl;
+
+        /*
         char alpha;
         int value;
         AVL_tree<int> tree;
@@ -39,6 +48,7 @@ int main()
         }
         std::cin.clear();
 
+        */
         std::cout << "Bye" << std::endl;
 
     return 0;

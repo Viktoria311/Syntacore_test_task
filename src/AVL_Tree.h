@@ -223,63 +223,98 @@ void AVL_tree<T>::set_balance(Node<T> * node)
 template<typename T>
 void AVL_tree<T>::L_rotate(Node<T> * root_node)
 {
+    Node<T> * last_root_node = root_node;
     Node<T> * right_branch = root_node->right_branch_;
     Node<T> * left_subtree_of_right_branch = right_branch->left_branch_;
 
-    right_branch->left_branch_ = root_node;
-    root_node->right_branch_ = left_subtree_of_right_branch;
 
+    root_node->right_branch_ = left_subtree_of_right_branch;
+    right_branch->left_branch_ = last_root_node;
     root_node = right_branch;
-    set_balance(root->left_branch_);
-    set_balance(root);
+
+    // change quantity of elements after rotate
+    root_node->left_branch_->elements_ = elements_quantity(root_node->left_branch_->left_branch_) +
+                                         elements_quantity(root_node->left_branch_->right_branch_) + 1;
+    root_node->elements_ = elements_quantity(root_node->left_branch_) +
+                           elements_quantity(root_node->right_branch_) + 1;
+    // change balances after rotate
+    set_balance(root_node->left_branch_);
+    set_balance(root_node);
 }
 
 template<typename T>
 void AVL_tree<T>::R_rotate(Node<T> * root_node)
 {
+    Node<T> * last_root_node = root_node;
     Node<T> * left_branch = root_node->left_branch_;
     Node<T> * right_subtree_of_left_branch = left_branch->right_branch_;
 
-    left_branch->right_branch_ = root_node;
     root_node->left_branch_ = right_subtree_of_left_branch;
-
+    left_branch->right_branch_ = last_root_node;
     root_node = left_branch;
-    set_balance(root->right_branch_);
-    set_balance(root);
+
+    // change quantity of elements after rotate
+    root_node->right_branch_->elements_ = elements_quantity(root_node->right_branch_->left_branch_) +
+                                          elements_quantity(root_node->right_branch_->right_branch_) + 1;
+    root_node->elements_ = elements_quantity(root_node->left_branch_) +
+                           elements_quantity(root_node->right_branch_) + 1;
+    // change balances after rotate
+    set_balance(root_node->right_branch_);
+    set_balance(root_node);
 }
 
 template<typename T>
 void AVL_tree<T>::LR_rotate(Node<T> * root_node)
 {
+    Node<T> * last_root_node = root_node;
     Node<T> * left_branch = root_node->left_branch_;
     Node<T> * right_subtree_of_left_branch = left_branch->right_branch_;
 
     left_branch->right_branch_ = right_subtree_of_left_branch->left_branch_;
+    last_root_node->left_branch_ = right_subtree_of_left_branch->right_branch_;
     right_subtree_of_left_branch->left_branch_ = left_branch;
-    root_node->left_branch_ = right_subtree_of_left_branch->right_branch_;
-    right_subtree_of_left_branch->right_branch_ = root_node;
+    right_subtree_of_left_branch->right_branch_ = last_root_node;
     root_node = right_subtree_of_left_branch;
 
+    // change quantity of elements after rotate
+    root_node->left_branch_->elements_ = elements_quantity(root_node->left_branch_->left_branch_) +
+                                         elements_quantity(root_node->left_branch_->right_branch_) + 1;
+    root_node->right_branch_->elements_ = elements_quantity(root_node->right_branch_->left_branch_) +
+                                          elements_quantity(root_node->right_branch_->right_branch_) + 1;
+    root_node->elements_ = elements_quantity(root_node->left_branch_) +
+                           elements_quantity(root_node->right_branch_) + 1;
+    // change balances after rotate
     set_balance(root_node->left_branch_);
     set_balance(root_node->right_branch_);
     set_balance(root_node);
+    check_and_rotate(root_node->right_branch_);
 }
 
 template<typename T>
 void AVL_tree<T>::RL_rotate(Node<T> * root_node)
 {
+    Node<T> * last_root_node = root_node;
     Node<T> * right_branch = root_node->right_branch_;
     Node<T> * left_subtree_of_right_branch = right_branch->left_branch_;
 
     right_branch->left_branch_ = left_subtree_of_right_branch->right_branch_;
+    last_root_node->right_branch_ = left_subtree_of_right_branch->left_branch_;
     left_subtree_of_right_branch->right_branch_ = right_branch;
-    root_node->right_branch_ = left_subtree_of_right_branch->left_branch_;
-    left_subtree_of_right_branch->left_branch_ = root_node;
+    left_subtree_of_right_branch->left_branch_ = last_root_node;
     root_node = left_subtree_of_right_branch;
 
+    // change quantity of elements after rotate
+    root_node->left_branch_->elements_ = elements_quantity(root_node->left_branch_->left_branch_) +
+                                         elements_quantity(root_node->left_branch_->right_branch_) + 1;
+    root_node->right_branch_->elements_ = elements_quantity(root_node->right_branch_->left_branch_) +
+                                          elements_quantity(root_node->right_branch_->right_branch_) + 1;
+    root_node->elements_ = elements_quantity(root_node->left_branch_) +
+                           elements_quantity(root_node->right_branch_) + 1;
+    // change balances after rotate
     set_balance(root_node->left_branch_);
     set_balance(root_node->right_branch_);
     set_balance(root_node);
+    check_and_rotate(root_node->left_branch_);
 }
 
 template<typename T>
@@ -287,13 +322,13 @@ void AVL_tree<T>::check_and_rotate(Node<T> * node, T item)
 {
     if (height(node->right_branch_) - height(node->left_branch_) > 1 || height(node->right_branch_) - height(node->left_branch_) < -1)
     {
-           if (root->value_ < item && node->value_ < item)
+           if (node->value_ < item && node->right_branch_->value_ < item)
                L_rotate(node);
-           else if (root->value_ > item && node->value_ > item)
+           else if (node->value_ > item && node->left_branch_->value_ > item)
                R_rotate(node);
-           else if (root->value_ > item && node->value_ < item)
+           else if (node->value_ > item && node->right_branch_->value_ < item)
                LR_rotate(node);
-           else // if (root->value_ < item && node->value_ > item)
+           else if (node->value_ < item && node->left_branch_->value_ > item)
                RL_rotate(node);
     }
 }
@@ -323,24 +358,25 @@ void AVL_tree<T>::insert(T item)
         {
             Node<T> * current_node = root;
             Node<T> * parent = root;
+            Node<T> * grand_parent = root;
 
-            while(current_node != nullptr && current_node->value_ != item)
+            while(current_node != nullptr)
             {
+                grand_parent = parent;
+                parent = current_node;
+                parent->elements_ += 1;
+
                 if (current_node->value_ < item)
                 {
-                    parent = current_node;
-                    parent->elements_ += 1;
                     current_node = current_node->right_branch_;
                 }
                 else
                 {
-                    parent = current_node;
-                    parent->elements_ += 1;
                     current_node = current_node->left_branch_;
                 }
             }
 
-
+            // connect parent and new node
             if (parent->value_ < item)
             {
                 parent->right_branch_ = create_node(item);
@@ -350,7 +386,7 @@ void AVL_tree<T>::insert(T item)
                 parent->left_branch_ = create_node(item);
             }
 
-            check_and_rotate(parent, item);
+            check_and_rotate(grand_parent, item);
         }
 
     }
@@ -363,19 +399,20 @@ void AVL_tree<T>::remove(T item)
     {
         Node<T> * current_node = root;
         Node<T> * parent = root;
+        Node<T> * grand_parent = root;
 
-        while(current_node != nullptr && current_node->value != item)
+        while(current_node->value != item)
         {
+            grand_parent = parent;
+            parent = current_node;
+            parent->elements_ -= 1;
+
             if (current_node->value_ < item)
             {
-                parent = current_node;
-                parent->elements_ -= 1;
                 current_node = current_node->right_branch_;
             }
             else
             {
-                parent = current_node;
-                parent->elements_ -= 1;
                 current_node = current_node->left_branch_;
             }
         }
@@ -457,6 +494,7 @@ void AVL_tree<T>::remove(T item)
             set_balance(parent);
         }
         check_and_rotate(parent);
+        check_and_rotate(grand_parent);
     }
 }
 
