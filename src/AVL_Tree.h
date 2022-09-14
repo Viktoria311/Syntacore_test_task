@@ -28,6 +28,7 @@ Node<T> * Node<T>::operator=(const Node<T> * node)
 {
     if (this != nullptr && node != nullptr)
     {
+        std::cout << "куку1"<< std::endl;
         this->value_ = node->value_;
         this->balance_ = node->balance_;
         this->left_branch_->operator=(node->left_branch_);
@@ -36,10 +37,12 @@ Node<T> * Node<T>::operator=(const Node<T> * node)
     }
     else if (this!= nullptr && node == nullptr)
     {
+        std::cout << "куку2"<< std::endl;
         delete_all(this);
     }
     else if (this == nullptr && node != nullptr)
     {
+        std::cout << "куку3"<< std::endl;
         this = new Node<T>;
         this->value_ = node->value_;
         this->balance_ = node->balance_;
@@ -47,6 +50,8 @@ Node<T> * Node<T>::operator=(const Node<T> * node)
         this->right_branch_->operator=(node->right_branch_);
         this->elements_ = node->elements_;
     }
+    std::cout << "куку3"<< std::endl;
+    return this;
 }
 
 template<typename T>
@@ -100,6 +105,7 @@ class AVL_tree
         bool is_there(T item) const;
         void insert(T item);
         void remove(T item);
+        int size() const;
         void show() const;
         T k_th_order_statistic(int i) const;
         int elem_less_than(T item) const;
@@ -107,6 +113,7 @@ class AVL_tree
         T max() const; // finding max element in a tree
         friend std::ostream & operator<< <T> (std::ostream & os, const Node<T> * node);
         friend std::ostream & operator<< <T> (std::ostream & os, const AVL_tree<T> & tree);
+
 };
 
 template<typename T>
@@ -368,6 +375,7 @@ void AVL_tree<T>::insert(T item)
             Node<T> * current_node = root;
             Node<T> * parent = root;
             Node<T> * grand_parent = root;
+            grand_parent = nullptr;
 
             while(current_node != nullptr)
             {
@@ -396,6 +404,10 @@ void AVL_tree<T>::insert(T item)
             }
 
             check_and_rotate(grand_parent, item);
+        }
+        else
+        {
+            std::cerr << "Value " << item << " is already in the tree" << std::endl;
         }
 
     }
@@ -505,6 +517,15 @@ void AVL_tree<T>::remove(T item)
         check_and_rotate(parent);
         check_and_rotate(grand_parent);
     }
+    {
+        std::cerr << "There isn`t " << item << " in the tree" << std::endl;
+    }
+}
+
+template<typename T>
+int AVL_tree<T>::size() const
+{
+    return this->root->elements_;
 }
 
 template<typename T>
@@ -565,7 +586,7 @@ T AVL_tree<T>::k_th_order_statistic(int i) const
 {
     if (i <= 0 || i > elements_quantity(root))
     {
-        std::cout << "Uncorrect element number" << std::endl;
+        std::cerr << "Uncorrect element number" << std::endl;
     }
     else
     {
