@@ -1,9 +1,10 @@
 #include "AVL_Tree.h"
 #include <iostream>
 #include <fstream>
+#include <cstdlib>
 #include <vector>
 
-void result(AVL_tree<int> & tree_, char & alpha_, int& value_ );
+void result(AVL_tree<int> & tree_, char alpha_, int value_ );
 void message1();
 void message2();
 void message3();
@@ -12,80 +13,94 @@ void message5(const AVL_tree<int> & tree_);
 
 int main()
 {
-        AVL_tree<int> tree3;
-        //int arr3[] = {20, 12, 43, 9, 27, 50, 19, 11, 15, 23, 51, 30};
-        int arr3[] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,
-                      21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
-                      41,42,43,44,45,46,47,48,49,50,};
-        for(auto & i : arr3)
-            tree3.insert(i);
-
-        std::cout << tree3 << std::endl;
-
-        tree3.remove(50);
-
-        std::cout << tree3 << std::endl;
-        tree3.print();
-
-        /*
         char alpha;
         int value;
         AVL_tree<int> tree;
 
-        while(std::cin.get(alpha) && alpha != '\n')
-        {
-            std::cin.get();
+        char space = ' ';
 
-            if (!(std::cin >> value))
+        do
+        {
+            if (space == ' ')
             {
-                message5();
+                std::cin.get(alpha);
+            }
+            else if (isalpha(space))
+            {
+                alpha = space;
+            }
+
+            if (!std::cin)
+            {
+                std::cin.clear();
+                message4();
+            }
+
+            std::cin.get(space);
+
+            if (space == '\n')
+            {
                 break;
             }
-            std::cin.get();
+            // enter a number
+            else if (space == ' ' && std::cin >> value)
+            {
+                // output the result
+                result(tree, alpha, value);
+                std::cin.get(space);
+            }
+            else if (!std::cin)
+            {
+                std::cin.clear();
+                message5(tree);
+                break;
+            }
+            else if (isdigit(space))
+            {
+                // space is forgotten
+                message1();
 
-            if (alpha == 'k')
-            {
-                tree.insert(value);
-            }
-            else if (alpha == 'm')
-            {
-                std::cout << tree.k_th_order_statistic(value);
-            }
-            else if (alpha == 'n')
-            {
-                std::cout << tree.elem_less_than(value);
+                std::vector<int> buffer;
+                buffer.push_back(atoi(const_cast<const char *>(&space)));
+                value = 0;
+
+                while(std::cin.get(space) && isdigit(space) )
+                    buffer.push_back(atoi(const_cast<const char *>(&space)));
+
+                auto it = buffer.rbegin();
+
+                for(int i = 0; it != buffer.rend(); ++it, ++i)
+                    value += (*it) * std::pow(10, i);
+
+                // output the result
+                result(tree, alpha, value);
             }
             else
             {
-                message3();
+                message5(tree);
+                break;
             }
-            std::cout << ' ';
-        }
-        if (!std::cin)
-        {
-            message4();
-            std::cin.clear();
-        }
 
-        */
-        std::cout << "Bye" << std::endl;
+        } while(alpha != '\n' && space != '\n');
+
+        std::cout << "\nBye" << std::endl;
 
     return 0;
 }
 
-void result(AVL_tree<int> & tree_, char & alpha_, int& value_ )
+void result(AVL_tree<int> & tree_, char alpha_, int value_ )
 {
     if (alpha_ == 'k')
     {
-        //tree_.insert(value_);
+        tree_.insert(value_);
     }
     else if (alpha_ == 'm')
     {
-        //std::cout << tree_.k_th_order_statistic(value);
+        std::cout << tree_.k_th_order_statistic(value_) << ' ';
     }
     else if (alpha_ == 'n')
     {
-        //std::cout << tree_.elem_less_than(value_);
+        std::cout << tree_.elem_less_than(value_) << ' ';
     }
     else
     {

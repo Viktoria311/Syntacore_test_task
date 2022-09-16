@@ -664,7 +664,7 @@ T AVL_tree<T>::k_th_order_statistic(int i) const
 {
     if (i <= 0 || i > elements_quantity(root))
     {
-        std::cerr << "Uncorrect element number" << std::endl;
+        std::cerr << "Uncorrect element number." << std::endl;
     }
     else
     {
