@@ -27,6 +27,7 @@ int main()
             }
             else if (isalpha(space))
             {
+                message1();
                 alpha = space;
             }
 
@@ -54,6 +55,25 @@ int main()
                 std::cin.clear();
                 message5(tree);
                 break;
+            }
+            else if(space == '-')
+            {
+                // space is forgotten
+                message1();
+
+                std::vector<int> buffer;
+                value = 0;
+
+                while(std::cin.get(space) && isdigit(space) )
+                    buffer.push_back(atoi(const_cast<const char *>(&space)));
+
+                auto it = buffer.rbegin();
+
+                for(int i = 0; it != buffer.rend(); ++it, ++i)
+                    value += (*it) * std::pow(10, i);
+
+                // output the result
+                result(tree, alpha, -1 * value);
             }
             else if (isdigit(space))
             {
