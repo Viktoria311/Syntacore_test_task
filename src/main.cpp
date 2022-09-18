@@ -13,97 +13,99 @@ void message5(const AVL_tree<int> & tree_);
 
 int main()
 {
-        char alpha;
-        int value;
-        AVL_tree<int> tree;
+    char alpha;
+    int value;
+    AVL_tree<int> tree;
 
-        char space = ' ';
+    char space = ' ';
 
-        do
+    do
+    {
+        if (space == '\n')
         {
-            if (space == ' ')
-            {
-                std::cin.get(alpha);
-            }
-            else if (isalpha(space))
-            {
-                message1();
-                alpha = space;
-            }
+            break;
+        }
+        else if (space == ' ')
+        {
+            std::cin.get(alpha);
+        }
+        else if (isalpha(space))
+        {
+            message1();
+            alpha = space;
+        }
 
-            if (!std::cin)
-            {
-                std::cin.clear();
-                message4();
-            }
+        if (!std::cin)
+        {
+            std::cin.clear();
+        }
 
+        std::cin.get(space);
+
+        if (space == '\n')
+        {
+            break;
+        }
+        // enter a number
+        else if (space == ' ' && std::cin >> value)
+        {
+            // output the result
+            result(tree, alpha, value);
             std::cin.get(space);
+        }
+        else if (!std::cin)
+        {
+            std::cin.clear();
+            break;
+        }
+        else if(space == '-')
+        {
+            // space is forgotten
+            message1();
 
-            if (space == '\n')
-            {
-                break;
-            }
-            // enter a number
-            else if (space == ' ' && std::cin >> value)
-            {
-                // output the result
-                result(tree, alpha, value);
-                std::cin.get(space);
-            }
-            else if (!std::cin)
-            {
-                std::cin.clear();
-                message5(tree);
-                break;
-            }
-            else if(space == '-')
-            {
-                // space is forgotten
-                message1();
+            std::vector<int> buffer;
+            value = 0;
 
-                std::vector<int> buffer;
-                value = 0;
-
-                while(std::cin.get(space) && isdigit(space) )
-                    buffer.push_back(atoi(const_cast<const char *>(&space)));
-
-                auto it = buffer.rbegin();
-
-                for(int i = 0; it != buffer.rend(); ++it, ++i)
-                    value += (*it) * std::pow(10, i);
-
-                // output the result
-                result(tree, alpha, -1 * value);
-            }
-            else if (isdigit(space))
-            {
-                // space is forgotten
-                message1();
-
-                std::vector<int> buffer;
+            while(std::cin.get(space) && isdigit(space) )
                 buffer.push_back(atoi(const_cast<const char *>(&space)));
-                value = 0;
 
-                while(std::cin.get(space) && isdigit(space) )
-                    buffer.push_back(atoi(const_cast<const char *>(&space)));
+            auto it = buffer.rbegin();
 
-                auto it = buffer.rbegin();
+            for(int i = 0; it != buffer.rend(); ++it, ++i)
+                value += (*it) * std::pow(10, i);
 
-                for(int i = 0; it != buffer.rend(); ++it, ++i)
-                    value += (*it) * std::pow(10, i);
+            // output the result
+            result(tree, alpha, -1 * value);
+        }
+        else if (isdigit(space))
+        {
+            // space is forgotten
+            message1();
 
-                // output the result
-                result(tree, alpha, value);
-            }
-            else
-            {
-                message5(tree);
-                break;
-            }
+            std::vector<int> buffer;
+            buffer.push_back(atoi(const_cast<const char *>(&space)));
+            value = 0;
 
-        } while(alpha != '\n' && space != '\n');
+            while(std::cin.get(space) && isdigit(space) )
+                buffer.push_back(atoi(const_cast<const char *>(&space)));
 
-        std::cout << "\nBye" << std::endl;
+            auto it = buffer.rbegin();
+
+            for(int i = 0; it != buffer.rend(); ++it, ++i)
+                value += (*it) * std::pow(10, i);
+
+            // output the result
+            result(tree, alpha, value);
+        }
+        else
+        {
+            message5(tree);
+            break;
+        }
+
+    } while(alpha != '\n' && space != '\n');
+
+    std::cout << std::endl;
 
     return 0;
 }
@@ -130,7 +132,7 @@ void result(AVL_tree<int> & tree_, char alpha_, int value_ )
 
 void message1()
 {
-    std::cerr << "Uncorrect input:\n";
+    std::cerr << "\nUncorrect input:\n";
     std::cerr << "Maybe you missed a space.\n";
 }
 void message2()
@@ -141,12 +143,12 @@ void message2()
 }
 void message3()
 {
-    std::cerr << "Uncorrect letter:\n";
+    std::cerr << "\nUncorrect letter:\n";
     message2();
 }
 void message4()
 {
-    std::cerr << "Uncorrect input: enter a letter\n";
+    std::cerr << "\nUncorrect input: enter a letter\n";
     message2();
 }
 void message5(const AVL_tree<int> & tree_)

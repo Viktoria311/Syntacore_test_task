@@ -410,7 +410,7 @@ void AVL_tree<T>::insert(T item)
     }
     else
     {
-        std::cerr << "Value " << item << " is already in the tree" << std::endl;
+        std::cerr << "\nValue " << item << " is already in the tree" << std::endl;
     }
 }
 
@@ -523,7 +523,7 @@ void AVL_tree<T>::remove(T item)
     }
     else
     {
-        std::cerr << "There isn`t " << item << " in the tree." << std::endl;
+        std::cerr << "\nThere isn`t " << item << " in the tree." << std::endl;
     }
 }
 

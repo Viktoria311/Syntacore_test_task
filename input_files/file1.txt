@@ -1,1 +1,1 @@
-k 7 k 3 k 5 k 9 k 8 k 2 k 13 k 11 k 1 k 4 k 6 m 1 n 2 m 2 n 9 k 98 k 36 k 17 m 10 k 100 n 50
+k 7 k 3 k 5 k 9 k 8 k 2 k 40 k 56 k 22 k 24 n 32 k 13 n 15 k 12 k 14 k 11 n 6 k 1 k 4 k 6 m 1 n 2 m 2 k 77 n 9 k 98 k 100 k 36 k 17 m 10 k 38 k 83 k 100 n 50
