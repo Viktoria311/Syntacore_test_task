@@ -12,6 +12,14 @@ struct Node
     Node<T> * right_branch_;
     Node<T> * left_branch_;
     int elements_; // quantity of elements in this subtree
+    Node()
+    {
+        value_ = 0;
+        balance_ = 0;
+        right_branch_ = nullptr;
+        left_branch_ = nullptr;
+        elements_ = 1;
+    }
     Node(T value)
     {
         value_ = value;
@@ -20,48 +28,21 @@ struct Node
         left_branch_ = nullptr;
         elements_ = 1;
     }
-    Node<T> * operator=(Node<T> * node);
-    void delete_all(Node<T> * node);
+    void delete_all();
 };
 
 template<typename T>
-Node<T> * Node<T>::operator=(Node<T> * node)
+void Node<T>::delete_all()
 {
-    if (this != nullptr && node != nullptr)
+    if (this != nullptr)
     {
-        this->value_ = node->value_;
-        this->balance_ = node->balance_;
-        this->left_branch_->operator=(node->left_branch_);
-        this->right_branch_->operator=(node->right_branch_);
-        this->elements_ = node->elements_;
-    }
-    else if (this!= nullptr && node == nullptr)
-    {
-        delete_all(this);
-    }
-    else if (this == nullptr && node != nullptr)
-    {
-        this = new Node<T>;
-        this->value_ = node->value_;
-        this->balance_ = node->balance_;
-        this->left_branch_->operator=(node->left_branch_);
-        this->right_branch_->operator=(node->right_branch_);
-        this->elements_ = node->elements_;
-    }
-    return this;
-}
+        Node<T> * l_branch = this->left_branch_;
+        Node<T> * r_branch = this->right_branch_;
 
-template<typename T>
-void Node<T>::delete_all(Node<T> * node)
-{
-    if (node != nullptr)
-    {
-        Node<T> * l_branch = node->left_branch_;
-        Node<T> * r_branch = node->right_branch_;
-        delete node;
-        node = nullptr;
-        delete_all(l_branch);
-        delete_all(r_branch);
+        delete this;
+
+        l_branch->delete_all();
+        r_branch->delete_all();
     }
 }
 
@@ -97,7 +78,7 @@ class AVL_tree
         void show(Node<T> * node) const;
         void print_n(const Node<T> * node, int n, int level, int prob) const;
         void print(const Node<T> * node) const;
-        void delete_all(Node<T> * node);
+        friend std::ostream & operator<< <T> (std::ostream & os, const Node<T> * node);
     public:
         AVL_tree();
         AVL_tree(const AVL_tree<T> & tree);
@@ -113,11 +94,34 @@ class AVL_tree
         int elem_less_than(T item) const;
         T min() const; // finding min element in a tree
         T max() const; // finding max element in a tree
-        friend std::ostream & operator<< <T> (std::ostream & os, const Node<T> * node);
         friend std::ostream & operator<< <T> (std::ostream & os, const AVL_tree<T> & tree);
-
 };
 
+template<typename T>
+void deep_copy(Node<T> * & current, const Node<T> * other)
+{
+    if (current != nullptr && other != nullptr)
+        {
+            current->value_ = other->value_;
+            current->balance_ = other->balance_;
+            deep_copy(current->left_branch_, other->left_branch_);
+            deep_copy(current->right_branch_,other->right_branch_);
+            current->elements_ = other->elements_;
+        }
+    else if (current != nullptr && other == nullptr)
+    {
+        current->delete_all();
+    }
+    else if (current == nullptr && other != nullptr)
+    {
+        current = new Node<T>;
+        current->value_ = other->value_;
+        current->balance_ = other->balance_;
+        deep_copy(current->left_branch_, other->left_branch_);
+        deep_copy(current->right_branch_, other->right_branch_);
+        current->elements_ = other->elements_;
+    }
+}
 template<typename T>
 AVL_tree<T>::AVL_tree()
 {
@@ -132,10 +136,10 @@ Node<T> * AVL_tree<T>::create_tree(Node<T> * node)
     Node<T> * new_node = new Node<T>(node->value_);
 
     if (node->left_branch_ != nullptr)
-        new_node->left_branch_ = Node<T>(node->left_branch_->value_);
+        new_node->left_branch_ = create_tree(node->left_branch_);
 
     if (node->right_branch_ != nullptr)
-        new_node->right_branch_ = Node<T>(node->right_branch_->value_);
+        new_node->right_branch_ = create_tree(node->right_branch_);
 
     return new_node;
 }
@@ -147,32 +151,18 @@ AVL_tree<T>::AVL_tree(const AVL_tree<T> & tree)
 }
 
 template<typename T>
-void AVL_tree<T>::delete_all(Node<T> * node)
-{
-    if (node != nullptr)
-    {
-        Node<T> * l_branch = node->left_branch_;
-        Node<T> * r_branch = node->right_branch_;
-        delete node;
-        node = nullptr;
-        delete_all(l_branch);
-        delete_all(r_branch);
-    }
-}
-
-template<typename T>
 AVL_tree<T>::~AVL_tree()
 {
-    delete_all(root);
+    root->delete_all();
 }
 
 template<typename T>
 AVL_tree<T> & AVL_tree<T>::operator=(const AVL_tree<T> & tree)
 {
-    if (this == *tree)
+    if (this == &tree)
         return *this;
 
-    root = tree.root;
+    deep_copy(this->root, const_cast<const Node<T> *>(tree.root));
     return *this;
 }
 
@@ -399,33 +389,10 @@ void AVL_tree<T>::insert(Node<T> ** node, T item)
         if ((*node)->value_ < item)
         {
             insert(&(*node)->right_branch_, item);
-            //check_and_rotate(node, item); MY CODE
-            /* NOT MY CODE
-            if (abs(height((*node)->right_branch_) - height((*node)->left_branch_)) > 1)
-            {
-                if (abs(height((*node)->right_branch_->right_branch_ )- height((*node)->right_branch_->left_branch_)) > 1)
-                {
-                    TurnRight(&(*node)->right_branch_); // переворачиваем правое дерево
-                }
-                TurnLeft(node); // поворот дерева влево
-            }
-            */
-
         }
         else if ((*node)->value_ > item)
         {
             insert(&(*node)->left_branch_, item);
-            //check_and_rotate(node, item); MY CODE
-            /* NOT MY CODE
-            if (abs(height((*node)->right_branch_) - height((*node)->left_branch_)) > 1)
-            {
-                if (abs(height((*node)->left_branch_->right_branch_ )- height((*node)->left_branch_->left_branch_)) > 1)
-                {
-                    TurnLeft(&(*node)->left_branch_); // переворачиваем правое дерево
-                }
-                TurnRight(node); // поворот дерева влево
-            }
-            */
         }
         check_and_rotate(node, item);
         set_balance(*node);
