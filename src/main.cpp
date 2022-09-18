@@ -104,17 +104,7 @@ int main()
         } while(alpha != '\n' && space != '\n');
 
         std::cout << "\nBye" << std::endl;
- auto tree2 = tree;
 
- std::cout << "дерево 1: "<<  tree << std::endl;
- std::cout << "дерево 2: "<< tree2 << std::endl;
- tree2.remove(5);
- tree2.remove(3);
- std::cout << "дерево 1: "<<  tree << std::endl;
- std::cout << "дерево 2: "<< tree2 << std::endl;
- tree2 = tree;
- std::cout << "дерево 1: "<<  tree << std::endl;
- std::cout << "дерево 2: "<< tree2 << std::endl;
     return 0;
 }
 
