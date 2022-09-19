@@ -362,14 +362,14 @@ void AVL_tree<T>::check_and_rotate(Node<T> ** node)
     {
         if (height((*node)->right_branch_) > height((*node)->left_branch_))
         {
-            // if there i a disbalance in a right_branch of node
+            // if there is a disbalance in a right_branch of node
             if (height((*node)->right_branch_->right_branch_) < height((*node)->right_branch_->left_branch_) )
                 R_rotate(&(*node)->right_branch_);
             L_rotate(node);
         }
         else
         {
-            // if there i a disbalance in a left_branch of node
+            // if there is a disbalance in a left_branch of node
             if (height((*node)->left_branch_->left_branch_) < height((*node)->left_branch_->right_branch_) )
                 L_rotate(&(*node)->left_branch_);
             R_rotate(node);

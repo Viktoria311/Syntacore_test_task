@@ -1,6 +1,5 @@
 #include "AVL_Tree.h"
 #include <iostream>
-#include <fstream>
 #include <cstdlib>
 #include <vector>
 
