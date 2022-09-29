@@ -28,23 +28,7 @@ struct Node
         left_branch_ = nullptr;
         elements_ = 1;
     }
-    void delete_all();
 };
-
-template<typename T>
-void Node<T>::delete_all()
-{
-    if (this != nullptr)
-    {
-        Node<T> * l_branch = this->left_branch_;
-        Node<T> * r_branch = this->right_branch_;
-
-        delete this;
-
-        l_branch->delete_all();
-        r_branch->delete_all();
-    }
-}
 
 template<typename T>
 class AVL_tree;
@@ -70,6 +54,8 @@ class AVL_tree
         void check_and_rotate(Node<T> ** node, T item);
         void check_and_rotate(Node<T> ** node);
         Node<T> * create_tree(Node<T> * node);
+        void delete_all(Node<T> * & node);
+        void deep_copy(Node<T> * & current, const Node<T> * other);
         void insert(Node<T> ** node, T item);
         void remove(Node<T> ** node, T item);
         T min(Node<T> * node) const; // finding min element in a branch
@@ -82,8 +68,10 @@ class AVL_tree
     public:
         AVL_tree();
         AVL_tree(const AVL_tree<T> & tree);
+        AVL_tree(AVL_tree<T> && tree);
         ~AVL_tree();
         AVL_tree<T> & operator=(const AVL_tree<T> & tree);
+        AVL_tree<T> & operator=(AVL_tree<T> && tree);
         bool is_there(T item) const;
         void insert(T item);
         void remove(T item);
@@ -98,7 +86,7 @@ class AVL_tree
 };
 
 template<typename T>
-void deep_copy(Node<T> * & current, const Node<T> * other)
+void AVL_tree<T>::deep_copy(Node<T> * & current, const Node<T> * other)
 {
     if (current != nullptr && other != nullptr)
         {
@@ -110,7 +98,7 @@ void deep_copy(Node<T> * & current, const Node<T> * other)
         }
     else if (current != nullptr && other == nullptr)
     {
-        current->delete_all();
+        delete_all(current);
     }
     else if (current == nullptr && other != nullptr)
     {
@@ -151,18 +139,51 @@ AVL_tree<T>::AVL_tree(const AVL_tree<T> & tree)
 }
 
 template<typename T>
+AVL_tree<T>::AVL_tree(AVL_tree<T> && tree) : root(tree.root)
+{
+    tree.root = nullptr;
+}
+
+template<typename T>
+void AVL_tree<T>::delete_all(Node<T> * & node)
+{
+    if (node != nullptr)
+    {
+        Node<T> * l_branch = node->left_branch_;
+        Node<T> * r_branch = node->right_branch_;
+
+        delete node;
+        node = nullptr;
+
+        delete_all(l_branch);
+        delete_all(r_branch);
+    }
+}
+
+template<typename T>
 AVL_tree<T>::~AVL_tree()
 {
-    root->delete_all();
+    delete_all(root);
 }
 
 template<typename T>
 AVL_tree<T> & AVL_tree<T>::operator=(const AVL_tree<T> & tree)
 {
-    if (this == &tree)
-        return *this;
+    if (this != &tree)
+    {
+        deep_copy(this->root, const_cast<const Node<T> *>(tree.root));
+    }
 
-    deep_copy(this->root, const_cast<const Node<T> *>(tree.root));
+    return *this;
+}
+
+template<typename T>
+AVL_tree<T> & AVL_tree<T>::operator=(AVL_tree<T> && tree)
+{
+    delete_all(root);
+    root = tree.root;
+    tree.root = nullptr;
+
     return *this;
 }
 
