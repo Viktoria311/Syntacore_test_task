@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <stack>
 
 template<typename T>
 struct Node
@@ -83,6 +84,149 @@ class AVL_tree
         T min() const; // finding min element in a tree
         T max() const; // finding max element in a tree
         friend std::ostream & operator<< <T> (std::ostream & os, const AVL_tree<T> & tree);
+        template<typename E>
+        class iterator
+        {
+            friend class AVL_tree;
+            private:
+                std::stack<Node<E> *> stack_;
+                Node<E> * root_;
+                Node<E> * current_;
+                int iteration_complete_; // Флаг, показывающий, достиг ли итератор конца списка
+                Node<E> * go_to_the_left(Node<E> * node)
+                {
+                    if (node == nullptr)
+                    {
+                        return nullptr;
+                    }
+                    while(node->left_branch_ != nullptr)
+                    {
+                        stack_.push(node);
+                        node = node->left_branch_;
+                    }
+                    return node;
+                }
+            public:
+                iterator(const iterator<E> & it) : stack_(it.stack_), root_(it.root_), current_(it.current_), iteration_complete_(it.iteration_complete_){}
+                iterator()
+                {
+                    stack_;
+                    root_ = nullptr;
+                    current_ = nullptr;
+                    iteration_complete_ = 1;
+                }
+                iterator(iterator<E> && it)
+                {
+                    std::swap(stack_, it.stack_);
+                    std::swap(root_, it.root_);
+                    std::swap(current_, it.current_);
+                    std::swap(iteration_complete_, it.iteration_complete_);
+                }
+                iterator<E> & operator=(const iterator<E> & it)
+                {
+                    if (this != &it)
+                    {
+                        stack_ = it.stack_;
+                        root_ = it.root_;
+                        current_ = it.current_;
+                        iteration_complete_ = it.iteration_complete_;
+                    }
+
+                    return *this;
+                }
+                iterator<E> & operator=(iterator<E> && it)
+                {
+                    if (this != &it)
+                    {
+                        std::swap(stack_, it.stack_);
+                        std::swap(root_, it.root_);
+                        std::swap(current_, it.current_);
+                        std::swap(iteration_complete_, it.iteration_complete_);
+                    }
+
+                    return *this;
+                }
+                const E & operator*() const
+                {
+                    return current_->value_;
+                }
+                bool operator==(const iterator<E> & it) const
+                {
+                    if (current_ == nullptr && it.current_ == nullptr) // если это end : true если одного дерева; false если разных деревьев
+                    {
+                        return stack_ == it.stack_ &&
+                               root_ == it.root_ &&
+                               iteration_complete_ == it.iteration_complete_;
+                    }
+                    else if ( (current_ == nullptr && it.current_ != nullptr) || (current_ != nullptr && it.current_ == nullptr))
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return stack_ == it.stack_ &&
+                               root_ == it.root_ &&
+                               current_ == it.current_ &&
+                               iteration_complete_ == it.iteration_complete_;
+                    }
+
+                }
+                bool operator!=(const iterator<E> & it) const
+                {
+                    return stack_ != it.stack_ ||
+                           root_ != it.root_ ||
+                           current_ != it.current_ ||
+                           iteration_complete_ != it.iteration_complete_;
+                }
+                iterator & operator++()
+                {
+                    if (iteration_complete_ == 1)
+                    {
+                        std::cerr << "Next: итератор прошел конец списка!" << std::endl;
+                        exit(1);
+                    }
+                    if (current_->right_branch_ != nullptr)
+                        current_ = go_to_the_left(current_->right_branch_);
+                    else if (!stack_.empty())
+                    {
+                        current_ = stack_.top();
+                        stack_.pop();
+                    }
+                    else
+                    {
+                        current_ = nullptr;
+                        iteration_complete_ = 1;
+                    }
+
+                    return *this;
+                }
+        };
+        iterator<T> begin()
+        {
+            iterator<T> it;
+
+            it.root_ = root;
+            it.current_ = root;
+            while(it.current_->left_branch_ != nullptr)
+            {
+                it.stack_.push(it.current_);
+                it.current_ = it.current_->left_branch_;
+            }
+
+            it.iteration_complete_ = 0;
+
+            return it;
+        }
+        iterator<T> end()
+        {
+            iterator<T> it;
+
+            it.root_ = root;
+            it.current_ = nullptr;
+            it.iteration_complete_ = 1;
+
+            return it;
+        }
 };
 
 template<typename T>
