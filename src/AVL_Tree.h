@@ -84,6 +84,7 @@ class AVL_tree
         T min() const; // finding min element in a tree
         T max() const; // finding max element in a tree
         friend std::ostream & operator<< <T> (std::ostream & os, const AVL_tree<T> & tree);
+
         template<typename E>
         class iterator
         {
@@ -92,7 +93,8 @@ class AVL_tree
                 std::stack<Node<E> *> stack_;
                 Node<E> * root_;
                 Node<E> * current_;
-                int iteration_complete_; // Флаг, показывающий, достиг ли итератор конца списка
+                int iteration_complete_; // flag is iterator in the end of the container
+                bool direction_flag_;
                 Node<E> * go_to_the_left(Node<E> * node)
                 {
                     if (node == nullptr)
@@ -106,14 +108,32 @@ class AVL_tree
                     }
                     return node;
                 }
+                Node<E> * go_to_the_right(Node<E> * node)
+                {
+                    if (node == nullptr)
+                    {
+                        return nullptr;
+                    }
+                    while(node->right_branch_ != nullptr)
+                    {
+                        stack_.push(node);
+                        node = node->right_branch_;
+                    }
+                    return node;
+                }
             public:
-                iterator(const iterator<E> & it) : stack_(it.stack_), root_(it.root_), current_(it.current_), iteration_complete_(it.iteration_complete_){}
+                iterator(const iterator<E> & it) : stack_(it.stack_),
+                                                   root_(it.root_),
+                                                   current_(it.current_),
+                                                   iteration_complete_(it.iteration_complete_),
+                                                   direction_flag_(it.direction_flag_) {}
                 iterator()
                 {
                     stack_;
                     root_ = nullptr;
                     current_ = nullptr;
                     iteration_complete_ = 1;
+                    direction_flag_ = 1;
                 }
                 iterator(iterator<E> && it)
                 {
@@ -121,6 +141,7 @@ class AVL_tree
                     std::swap(root_, it.root_);
                     std::swap(current_, it.current_);
                     std::swap(iteration_complete_, it.iteration_complete_);
+                    std::swap(direction_flag_, it.direction_flag_);
                 }
                 iterator<E> & operator=(const iterator<E> & it)
                 {
@@ -130,6 +151,7 @@ class AVL_tree
                         root_ = it.root_;
                         current_ = it.current_;
                         iteration_complete_ = it.iteration_complete_;
+                        direction_flag_ = it.direction_flag_;
                     }
 
                     return *this;
@@ -142,66 +164,102 @@ class AVL_tree
                         std::swap(root_, it.root_);
                         std::swap(current_, it.current_);
                         std::swap(iteration_complete_, it.iteration_complete_);
+                        std::swap(direction_flag_, it.direction_flag_);
                     }
 
                     return *this;
                 }
                 const E & operator*() const
                 {
+                    if (current_ == nullptr)
+                    {
+                        std::cerr << "Trying to dereference a nullptr pointer" << std::endl;
+                        exit(1);
+                    }
                     return current_->value_;
                 }
                 bool operator==(const iterator<E> & it) const
                 {
-                    if (current_ == nullptr && it.current_ == nullptr) // если это end : true если одного дерева; false если разных деревьев
+                    if (direction_flag_ == it.direction_flag_) // if there are iterators with the same direction
                     {
-                        return stack_ == it.stack_ &&
-                               root_ == it.root_ &&
-                               iteration_complete_ == it.iteration_complete_;
+                        return root_ == it.root_ &&
+                               current_ == it.current_;
                     }
-                    else if ( (current_ == nullptr && it.current_ != nullptr) || (current_ != nullptr && it.current_ == nullptr))
+                    else // if iterators have different directions
                     {
-                        return false;
+                        if (current_ == nullptr && it.current_ == nullptr)
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            return root_ == it.root_ &&
+                                   current_ == it.current_;
+                        }
                     }
-                    else
-                    {
-                        return stack_ == it.stack_ &&
-                               root_ == it.root_ &&
-                               current_ == it.current_ &&
-                               iteration_complete_ == it.iteration_complete_;
-                    }
-
                 }
                 bool operator!=(const iterator<E> & it) const
                 {
-                    return stack_ != it.stack_ ||
-                           root_ != it.root_ ||
-                           current_ != it.current_ ||
-                           iteration_complete_ != it.iteration_complete_;
+                    if (*this == it)
+                    {
+                        return false;
+                    }
+                    return true;
                 }
-                iterator & operator++()
+                iterator<E> & operator++()
                 {
                     if (iteration_complete_ == 1)
                     {
-                        std::cerr << "Next: итератор прошел конец списка!" << std::endl;
+                        std::cerr << "Next: iterator has gone the end of the container" << std::endl;
                         exit(1);
                     }
-                    if (current_->right_branch_ != nullptr)
-                        current_ = go_to_the_left(current_->right_branch_);
-                    else if (!stack_.empty())
+
+                    if (direction_flag_ == true)
                     {
-                        current_ = stack_.top();
-                        stack_.pop();
+                        if (current_->right_branch_ != nullptr)
+                        {
+                            current_ = go_to_the_left(current_->right_branch_);
+                        }
+                        else if (!stack_.empty())
+                        {
+                            current_ = stack_.top();
+                            stack_.pop();
+                        }
+                        else
+                        {
+                            current_ = nullptr;
+                            iteration_complete_ = 1;
+                        }
                     }
                     else
                     {
-                        current_ = nullptr;
-                        iteration_complete_ = 1;
+                        if (current_->left_branch_ != nullptr)
+                        {
+                            current_ = go_to_the_right(current_->left_branch_);
+                        }
+                        else if (!stack_.empty())
+                        {
+                            current_ = stack_.top();
+                            stack_.pop();
+                        }
+                        else
+                        {
+                            current_ = nullptr;
+                            iteration_complete_ = 1;
+                        }
                     }
 
                     return *this;
                 }
+                iterator<E> operator++(int)
+                {
+                    auto it = *this;
+                    ++(*this);
+
+                    return it;
+                }
         };
-        iterator<T> begin()
+        iterator<T> begin() const
         {
             iterator<T> it;
 
@@ -214,16 +272,103 @@ class AVL_tree
             }
 
             it.iteration_complete_ = 0;
+            it.direction_flag_ = true; // from min to max
 
             return it;
         }
-        iterator<T> end()
+        iterator<T> end() const
         {
             iterator<T> it;
 
             it.root_ = root;
             it.current_ = nullptr;
             it.iteration_complete_ = 1;
+            it.direction_flag_ = true; // from min to max
+
+            return it;
+        }
+        iterator<T> cbegin() const
+        {
+            iterator<T> it;
+
+            it.root_ = root;
+            it.current_ = root;
+            while(it.current_->left_branch_ != nullptr)
+            {
+                it.stack_.push(it.current_);
+                it.current_ = it.current_->left_branch_;
+            }
+
+            it.iteration_complete_ = 0;
+            it.direction_flag_ = true; // from min to max
+
+            return it;
+        }
+        iterator<T> cend() const
+        {
+            iterator<T> it;
+
+            it.root_ = root;
+            it.current_ = nullptr;
+            it.iteration_complete_ = 1;
+            it.direction_flag_ = true; // from min to max
+
+            return it;
+        }
+        //////////////// ОБРАТНО
+        iterator<T> rbegin() const
+        {
+            iterator<T> it;
+
+            it.root_ = root;
+            it.current_ = root;
+            while(it.current_->right_branch_ != nullptr)
+            {
+                it.stack_.push(it.current_);
+                it.current_ = it.current_->right_branch_;
+            }
+
+            it.iteration_complete_ = 0;
+            it.direction_flag_ = false; // from max to min
+
+            return it;
+        }
+        iterator<T> rend() const
+        {
+            iterator<T> it;
+
+            it.root_ = root;
+            it.current_ = nullptr;
+            it.iteration_complete_ = 1;
+            it.direction_flag_ = false; // from max to min
+
+            return it;
+        }
+        iterator<T> crbegin() const
+        {
+            iterator<T> it;
+
+            it.root_ = root;
+            it.current_ = root;
+            while(it.current_->right_branch_ != nullptr)
+            {
+                it.stack_.push(it.current_);
+                it.current_ = it.current_->right_branch_;
+            }
+
+            it.iteration_complete_ = 0;
+            it.direction_flag_ = false; // from max to min
+
+            return it;
+        }
+        iterator<T> crend() const
+        {
+            iterator<T> it;
+
+            it.root_ = root;
+            it.current_ = nullptr;
+            it.iteration_complete_ = 1;
+            it.direction_flag_ = false; // from max to min
 
             return it;
         }
